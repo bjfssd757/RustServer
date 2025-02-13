@@ -9,7 +9,7 @@ use std::sync::LazyLock;
 
 const NONE: Option<&str> = None;
 static START_TIME: LazyLock<String> = LazyLock::new(|| Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
-static LOG_FILE_NAME: LazyLock<String> = LazyLock::new(|| format!("log_{}.log", Local::now().format("%Y-%m-%d_%H-%M-%S")));
+static LOG_FILE_NAME: LazyLock<String> = LazyLock::new(|| format!("logs/log_{}.log", Local::now().format("%Y-%m-%d_%H-%M-%S")));
 
 
 #[derive(Deserialize)]
@@ -29,7 +29,7 @@ async fn index(req: web::Json<SetId>) -> Result<HttpResponse> {
 
     let mut file = std::fs::OpenOptions::new()
         .append(true)
-        .open("users.txt")?;
+        .open("config/users.txt")?;
     file.write_all(format!("User ID: {}\n", req.id).as_bytes())?;
 
     function::add_log(&LOG_FILE_NAME, "Info", "Add user ID", &local, NONE)?;
@@ -39,7 +39,7 @@ async fn index(req: web::Json<SetId>) -> Result<HttpResponse> {
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let content = std::fs::read_to_string("config.toml")?;
+    let content = std::fs::read_to_string("config/config.toml")?;
     let config: Config = toml::from_str(&content)?;
 
     if config.logging == true {
